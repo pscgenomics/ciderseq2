@@ -53,9 +53,9 @@ def split(configfile,inputfile,format,numjobs,cluster, mode):
             outputfile[i]['handle'].close()
             if not cluster=='':
                 if mode=='full':
-                    outputfile[i]['cluster']=cluster +" \"python3 ./ciderseq.py "+configfile+" "+outputfile[i]['ofile']+" --format fasta\""
+                    outputfile[i]['cluster']=cluster +" \"python3 ../ciderseq2/ciderseq.py "+configfile+" "+outputfile[i]['ofile']+" --format fasta\""
                 else:
-                    outputfile[i]['cluster'] = cluster + " \"python3 ./ciderseq.py " + configfile + " " + outputfile[i]['ofile'] + " --format fasta --no-separation --no-alignment --no-annotation --no-phasing\""
+                    outputfile[i]['cluster'] = cluster + " \"python3 ../ciderseq2/ciderseq.py " + configfile + " " + outputfile[i]['ofile'] + " --format fasta --no-separation --no-alignment --no-annotation --no-phasing\""
             else:
                 if mode == 'full':
                     outputfile[i]['cluster']="python3 ./ciderseq.py "+configfile+" "+outputfile[i]['ofile']+" --format fasta &"
@@ -63,7 +63,8 @@ def split(configfile,inputfile,format,numjobs,cluster, mode):
                     outputfile[i]['cluster'] = "python3 ./ciderseq.py " + configfile + " " + outputfile[i]['ofile'] + " --format fasta --no-separation --no-alignment --no-annotation --no-phasing &"
             click.echo(outputfile[i]['cluster'])
         #query execution
-        if click.confirm('Do you want to execute above commands?'):
+        #if click.confirm('Do you want to execute above commands?'):
+        if False:
             #execute jobs
             click.echo('submitting jobs..')
             for i in range (0,numjobs):
@@ -72,7 +73,7 @@ def split(configfile,inputfile,format,numjobs,cluster, mode):
                 #delay execution on next command because of directory creation in ciderseq.py
                 time.sleep(1)
     else:
-        print('Output directory already exists. Use \'rm -rf '+inputfile+'.dir\' to remove split-target directory.')
+        #print('Output directory already exists. Use \'rm -rf '+inputfile+'.dir\' to remove split-target directory.')
         sys.exit(1)
 ########################################################################################################
 # JOIN #################################################################################################
@@ -80,7 +81,7 @@ def split(configfile,inputfile,format,numjobs,cluster, mode):
 @cli.command('join',help='will join splitted input-file.')
 @click.argument('configfile', type=click.Path(exists=True,readable=True))
 @click.argument('inputfile', type=click.Path(exists=True,readable=True))
-@click.option('--clean', is_flag=True, help='will cleanup split folder.',prompt=True)
+@click.option('--clean', is_flag=True, help='will cleanup split folder.',prompt=False)
 @click.option('--mode', default='full', type=click.Choice(['full','deconcat']), help='Type of operation (default=full).',prompt=True)
 def join(configfile,inputfile,clean,mode):
     if mode == 'full':
@@ -346,7 +347,7 @@ def plot(configfile,inputfile):
         for i in t[0]:
             if max(i) > maxy:
                 maxy=max(i)+1
-        ax.set_yticks(range(int(maxy)))
+        ax.set_yticks(range(0, int(maxy), int(maxy / 10)))
         ax.legend()
         plt.savefig(outputdir+"/"+os.path.splitext(os.path.basename(inputfile))[0]+'.seqlength.'+g+'.png')   # save the figure to file
         plt.close()
@@ -410,8 +411,8 @@ def plot(configfile,inputfile):
     for p in sorted(proteins):
         y.append(frameshift[p])
 
-    ax.set_yticks(range(max(y)+1))
-    ax.set_yticklabels(range(max(y)+1))
+    ax.set_yticks(range(0, max(y)+1, int(max(y) / 10 + 1)))
+    ax.set_yticklabels(range(0, max(y)+1, int(max(y) / 10 + 1)))
     ax.set_xticks(range(len(frameshift)))
     ax.set_xticklabels(sorted(proteins))
     ax.bar(range(len(frameshift)), y, 1/1.5)
@@ -452,7 +453,7 @@ def plot(configfile,inputfile):
             plt.ylabel('Number of sequences')
             plt.title(g)
 
-            ax.set_yticks(range(max(deconcatrounds)+1))
+            ax.set_yticks(range(0, max(deconcatrounds)+1, int(max(deconcatrounds) / 10 +1)))
             ax.set_xticks(range(26))
             ax.set_xticklabels(range(26))
             ax.bar(range(26), deconcatrounds, 1/1.5)
@@ -478,8 +479,8 @@ def plot(configfile,inputfile):
                     maxy=(int(i)+1)
                     #print('....'+str(maxy))
 
-            ax.set_yticks(range(int(maxy)))
-            ax.set_yticklabels(range(int(maxy)))
+            ax.set_yticks(range(0, int(maxy), int(maxy / 10)))
+            ax.set_yticklabels(range(0, int(maxy), int(maxy / 10)))
 
             plt.savefig(outputdir+"/"+os.path.splitext(os.path.basename(inputfile))[0]+'.deconcatscore.'+g+'.png')   # save the figure to file
             plt.close()
@@ -496,8 +497,8 @@ def plot(configfile,inputfile):
             for p in sorted(deconcatcases):
                 y.append(deconcatcases[p])
 
-            ax.set_yticks(range(max(y)+1))
-            ax.set_yticklabels(range(max(y)+1))
+            ax.set_yticks(range(0, max(y)+1, int(max(y) / 10 +1) ))
+            ax.set_yticklabels(range(0, max(y)+1, int(max(y) / 10 +1) ))
             ax.set_xticks(range(len(deconcatcases)))
             ax.set_xticklabels(sorted(x))
             ax.bar(range(len(deconcatcases)), y, 1/1.5)
